@@ -1,0 +1,67 @@
+/*something*/
+
+%{
+#include <cstdio>
+#include <iostream>
+using namespace std;
+#define YY_DECL extern "C" int yylex()
+
+#include "travel.tab.hpp"
+
+%}
+
+%option noyywrap
+
+%%
+[Bb][Ee][Gg][Ii][Nn]				return START;
+[Ee][Nn][Dd]   					return FINISH;
+[Tt][Rr][Aa][Vv][Ee][Ll][Ee][Rr]		{
+							return TRAVELER;
+						}
+[Bb][Uu][Ss][Ii][Nn][Ee][Ss][Ss][Mm][Aa][Nn] 	return BUSINESSMAN;
+[Ff]						{ 
+							yylval.gen = 1;
+						  	return VALUE;
+						}
+[Mm]						{ 
+							yylval.gen = 0;
+						  	return VALUE;
+						}
+goes						return GOES;
+by						return BY;
+train						return TRAIN;
+plane						return PLANE;
+foot						return FOOT;
+bike						return BIKE;
+bus						return BUS;
+subway						return SUBWAY;
+car						return CAR;
+boat						return BOAT;
+hours						return HOURS;
+bm_max_distance					return BM_MAX_DISTANCE;
+tr_max_distance					return TR_MAX_DISTANCE;
+max_distance					return MAX_DISTANCE;
+bm_min_distance					return BM_MIN_DISTANCE;
+tr_min_distance					return TR_MIN_DISTANCE;
+min_distance					return MIN_DISTANCE;
+print_tr					return PRINT_TR;
+print_bm					return PRINT_BM;
+
+[0-9]+  					{
+							yylval.hour = atof(yytext);
+							return NUM;
+						}			
+[0-9]+\.[0-9]+  				{
+							yylval.hour = atof(yytext);
+							return NUM;
+						}
+
+[a-zA-Z][a-zA-Z0-9]*				{	
+							yylval.name = strdup(yytext);
+							return NAME;
+						}
+=             					return EQUAL;
+";"        					return SEMICOLON;
+[\n\r\t ]+					;
+.						;
+%%

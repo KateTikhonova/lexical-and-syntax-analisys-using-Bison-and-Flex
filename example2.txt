@@ -1,0 +1,19 @@
+businessman Anna=f;
+businessman Oleg;
+businessman Inna = f;
+businessman Nik = m;
+begin
+	Anna goes by train 2 hours;
+	Inna goes by subway 1 hours;
+	Oleg goes by plane 0.5 hours;
+	Nik goes by boat 34 hours;
+	Inna goes by foot 10 hours;
+	Oleg goes by bus 2.3 hours;
+	Anna goes by plane 3.5 hours;
+	Oleg goes by bike 23 hours;
+	Inna goes by car 0.5 hours;
+	Nik goes by boat 34 hours;
+end
+print_bm;
+bm_max_distance;
+bm_min_distance;

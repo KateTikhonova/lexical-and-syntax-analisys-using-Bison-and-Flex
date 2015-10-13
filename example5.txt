@@ -1,0 +1,10 @@
+businessman Anna=f;
+businessman Oleg;
+businessman Inna = f;
+businessman Nik = m;
+traveler Kate = f;
+traveler Andrew = m;
+Traveler Greg;
+traveler Bill;
+Kate goes by train 1.2 hours;
+tr_min_distance;

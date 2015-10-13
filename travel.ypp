@@ -1,0 +1,471 @@
+/*something*/
+
+%{
+#include <cstdio>
+#include <iostream>
+#include <string.h>
+#include <vector>
+#include <iterator>
+#include "Traveler.h"
+#include "Businessman.h"
+
+static int amount_of_tr = 0;
+static int amount_of_bs = 0;
+//extern FILE* yyin; 
+
+using namespace std;
+
+// stuff from flex that bison needs to know about:
+extern "C" int yylex();
+extern "C" int yyparse();
+extern "C" FILE *yyin;
+ 
+void yyerror(const char *s);
+
+vector <Traveler> travelers;
+vector <Businessman> businessmen;
+
+void check_redeclaration(const char*);
+void handle_redeclaration(const char*);
+int find_name_tr(const char*);
+int find_name_bs(const char*);
+int traveler_max_distance();
+int businessman_max_distance();
+void max_distance();
+void print_travelers();
+void print_businessman();
+int traveler_min_distance();
+int businessman_min_distance();
+void min_distance();
+
+%}
+%union {
+	int gen;
+	char *name;
+	double hour;
+}
+
+// define the "terminal symbol" token types I'm going to use
+%token START
+%token FINISH
+%token TRAVELER 
+%token BUSINESSMAN 
+%token <gen> VALUE 
+%token <name> NAME 
+%token EQUAL
+%token SEMICOLON
+%token GOES
+%token  BY
+%token TRAIN
+%token PLANE
+%token FOOT
+%token BIKE
+%token BUS
+%token SUBWAY
+%token CAR
+%token BOAT
+%token HOURS
+%token <hour> NUM
+%token BM_MAX_DISTANCE;
+%token TR_MAX_DISTANCE;
+%token MAX_DISTANCE;
+%token BM_MIN_DISTANCE;
+%token TR_MIN_DISTANCE;
+%token MIN_DISTANCE;
+%token PRINT_TR;
+%token PRINT_BM;
+
+%%
+// this is the actual grammar that bison will parse
+input: /* empty */
+	| declares START actions FINISH information
+	;
+
+declares: /* empty */
+	| declare declares 
+	;
+
+declare:  TRAVELER NAME SEMICOLON
+	{
+		check_redeclaration($2);
+		amount_of_tr++;
+		Traveler tr($2, 'm');
+		travelers.push_back(tr);
+	}
+	;
+	| TRAVELER NAME EQUAL VALUE SEMICOLON
+	{
+		check_redeclaration($2);
+		char g='m';
+		if( $4){
+		  g='f';	
+		}
+		Traveler tr($2, g);
+		amount_of_tr++;
+		travelers.push_back(tr);
+	}
+	;
+	| BUSINESSMAN NAME SEMICOLON
+	{
+		check_redeclaration($2);
+		amount_of_bs++;
+		Businessman tr($2, 'm');
+		businessmen.push_back(tr);
+	}
+	;
+	| BUSINESSMAN NAME EQUAL VALUE SEMICOLON
+	{
+		check_redeclaration($2);
+		char g='m';
+		if( $4){
+		  g='f';	
+		}
+		Businessman bs($2, g);
+		amount_of_bs++;
+		businessmen.push_back(bs);
+	}
+
+actions: /* empty */
+	| action actions
+	;
+	
+action: NAME GOES BY TRAIN NUM HOURS SEMICOLON
+	{
+		int i=find_name_tr($1);
+		if(i >= 0){
+		    travelers[i].add_km_train($5);
+		}
+		else{
+		    i=find_name_bs($1);
+		    if(i == -1){
+			yyerror(" cannot find this name.");
+		    }
+		    businessmen[i].add_km_train($5);
+		}
+		
+	}
+	| NAME GOES BY PLANE NUM HOURS SEMICOLON
+	{
+		int i=find_name_tr($1);
+		if(i >= 0){
+		    travelers[i].add_km_plane($5);
+		}
+		else{
+		    i=find_name_bs($1);
+		    if(i == -1){
+			yyerror(" cannot find this name.");
+		    }
+		    businessmen[i].add_km_plane($5);
+		}
+	}
+	| NAME GOES BY FOOT NUM HOURS SEMICOLON
+	{
+		int i=find_name_tr($1);
+		if(i >= 0){
+		    travelers[i].add_km_foot($5);
+		}
+		else{
+		    i=find_name_bs($1);
+		    if(i == -1){
+			yyerror(" cannot find this name.");
+		    }
+		    businessmen[i].add_km_foot($5);
+		}
+	}
+	| NAME GOES BY BIKE NUM HOURS SEMICOLON
+	{
+		int i=find_name_tr($1);
+		if(i >= 0){
+		    travelers[i].add_km_train($5);
+		}
+		else{
+		    i=find_name_bs($1);
+		    if(i == -1){
+			yyerror(" cannot find this name.");
+		    }
+		   yyerror(" syntax error");
+		}
+	}
+	| NAME GOES BY CAR NUM HOURS SEMICOLON
+	{
+		int i=find_name_tr($1);
+		if(i >= 0){
+		    travelers[i].add_km_auto($5);
+		}
+		else{
+		    i=find_name_bs($1);
+		    if(i == -1){
+			yyerror(" cannot find this name.");
+		    }
+		    businessmen[i].add_km_auto($5);
+		}
+	}
+	| NAME GOES BY BOAT NUM HOURS SEMICOLON
+	{
+		int i=find_name_tr($1);
+		if(i >= 0){
+		    travelers[i].add_km_boat($5);
+		}
+		else{
+		    i=find_name_bs($1);
+		    if(i == -1){
+			yyerror(" cannot find this name.");
+		    }
+		    businessmen[i].add_km_boat($5);
+		}
+	}
+	| NAME GOES BY BUS NUM HOURS SEMICOLON
+	{
+		int i=find_name_tr($1);
+		if(i >= 0){
+		    travelers[i].add_km_boat($5);
+		}
+		else{
+		    i=find_name_bs($1);
+		    if(i == -1){
+			yyerror(" cannot find this name.");
+		    }
+		    yyerror(" syntax error");
+		}
+	}
+	| NAME GOES BY SUBWAY NUM HOURS SEMICOLON
+	{
+		int i=find_name_tr($1);
+		if(i >= 0){
+		    travelers[i].add_km_subway($5);
+		}
+		else{
+		    i=find_name_bs($1);
+		    if(i == -1){
+			yyerror(" cannot find this name.");
+		    }
+		    businessmen[i].add_km_subway($5);
+		}
+	}
+	;
+information: /*empty*/
+	    | maxmin information
+	    ;
+
+maxmin: BM_MAX_DISTANCE SEMICOLON
+	{
+		cout.precision(2);
+		int pos=businessman_max_distance();
+		cout << "Maximum distance is " << fixed << businessmen[pos].km << "km made by " << businessmen[pos].name << endl;
+	}
+	|
+	TR_MAX_DISTANCE SEMICOLON
+	{
+		cout.precision(2);
+		int pos=traveler_max_distance();
+		cout << "Maximum distance is " << fixed << travelers[pos].km << "km made by " << travelers[pos].name << endl;
+	}
+	|
+	MAX_DISTANCE SEMICOLON
+	{
+		max_distance();
+	}
+	|
+	PRINT_TR SEMICOLON
+	{
+		print_travelers();
+	}
+	|
+	PRINT_BM SEMICOLON
+	{
+		print_businessman();
+	}
+	|
+	BM_MIN_DISTANCE SEMICOLON
+	{
+		cout.precision(2);
+		int pos=businessman_min_distance();
+		cout << "Minimum distance is " << fixed << businessmen[pos].km << "km made by " << businessmen[pos].name << endl;
+	}
+	|
+	TR_MIN_DISTANCE SEMICOLON
+	{
+		cout.precision(2);
+		int pos=traveler_min_distance();
+		cout << "Minimum distance is " << fixed << travelers[pos].km << "km made by " << travelers[pos].name << endl;
+	}
+	|
+	MIN_DISTANCE SEMICOLON
+	{
+		min_distance();
+	}
+	;	
+%%
+
+int main(int argc, char* argv[]) 
+{
+	int res;
+	if(argc == 1){
+		cout << "There is no file, where i can get language sample!" << endl;
+		return -1;
+	}
+	yyin = fopen(argv[1], "r");
+	if (!yyin) {
+		cout << "Can't open this file!" << endl;
+		return -1;
+	}
+	res = yyparse();
+	fclose(yyin);
+	return res;
+}
+
+
+void yyerror(const char *s) {
+	cout << "error: " << s << endl;
+	// might as well halt now:
+	exit(-1);
+}
+
+int find_name_bs(const char* name)
+{
+    int flag=-1;
+   	for (int i = 0; i < amount_of_bs; ++i){
+        	if(name == businessmen[i].name){
+            		flag=i;
+            		break;
+		}
+    	}
+    return flag;
+}
+
+int find_name_tr(const char* name)
+{
+    int flag=-1;
+    for (int i = 0; i < amount_of_tr; ++i){
+        if(name == travelers[i].name){
+            flag=i;
+            break;
+        }
+    }
+    return flag;
+}
+
+void handle_redeclaration(const char* name)
+{
+	char *result = new char[strlen("redeclaration of  ")+strlen(name)+1];
+	strcpy(result, "redeclaration of  ");
+	strcat(result, name);
+	yyerror(result);
+	delete[] result;
+}
+
+void check_redeclaration(const char* name)
+{
+	if(find_name_bs(name) != -1){
+		handle_redeclaration(name);
+	}
+	if(find_name_tr(name) != -1){
+		handle_redeclaration(name);
+	}
+	
+}
+
+void print_travelers()
+{
+	cout << "Name  km   hours" << endl;
+	cout.precision(4);
+	for (int i = 0; i < amount_of_tr; ++i)
+		cout << travelers[i].name << "  " << travelers[i].km << "  " << fixed << travelers[i].hours << endl;
+}
+
+void print_businessman()
+{
+	cout << "Name   km   hours" << endl;
+	cout.precision(4);
+	for (int i = 0; i < amount_of_bs; ++i)
+		cout << businessmen[i].name << "  " << businessmen[i].km << "  " << fixed << businessmen[i].hours << endl;
+}
+
+int traveler_max_distance()
+{
+	int max=0;
+	for (int i = 0; i < amount_of_tr; ++i){
+		if(travelers[i].km > travelers[max].km){
+			max=i;
+		}
+	}
+	return max;
+}
+
+int businessman_max_distance()
+{
+	int max=0;
+	for (int i = 0; i < amount_of_bs; ++i){
+		if(businessmen[i].km > businessmen[max].km){
+			max=i;
+		}
+	}
+	return max;
+}
+
+void max_distance()
+{
+	int bm=businessman_max_distance();
+	int tr=traveler_max_distance();
+	if(travelers[tr].km > businessmen[bm].km){
+		cout.precision(2);
+		cout << "Maximum distance is " << fixed << travelers[tr].km << "km made by " << travelers[tr].name << endl;
+	}
+	else{
+		cout.precision(2);
+		cout << "Maximum distance is " << fixed << businessmen[bm].km << "km made by " << businessmen[bm].name << endl;
+	}
+}
+
+int traveler_min_distance()
+{
+	int min=0;
+	for (int i = 0; i < amount_of_tr; ++i){
+		if(travelers[i].km < travelers[min].km){
+			min=i;
+		}
+	}
+	return min;
+}
+
+int businessman_min_distance()
+{
+	int min=0;
+	for (int i = 0; i < amount_of_bs; ++i){
+		if(businessmen[i].km < businessmen[min].km){
+			min=i;
+		}
+	}
+	return min;
+}
+
+void min_distance()
+{
+	int bm=businessman_min_distance();
+	int tr=traveler_min_distance();
+	if(travelers[tr].km < businessmen[bm].km){
+		cout.precision(2);
+		cout << "Minimum distance is " << fixed << travelers[tr].km << "km made by " << travelers[tr].name << endl;
+	}
+	else{
+		cout.precision(2);
+		cout << "Minimum distance is " << fixed << businessmen[bm].km << "km made by " << businessmen[bm].name << endl;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

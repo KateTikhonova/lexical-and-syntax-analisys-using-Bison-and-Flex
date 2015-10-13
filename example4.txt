@@ -1,0 +1,12 @@
+businessman Anna=f;
+businessman Oleg;
+businessman Inna = f;
+businessman Nik = m;
+traveler Kate = f;
+traveler Andrew = m;
+Traveler Greg;
+traveler Bill;
+traveler Oleg;
+begin
+	Kate goes by train 1.2 hours;
+end

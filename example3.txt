@@ -1,0 +1,23 @@
+businessman Anna=f;
+businessman Oleg;
+businessman Inna = f;
+businessman Nik = m;
+traveler Kate = f;
+traveler Andrew = m;
+Traveler Greg;
+traveler Bill;
+begin
+	Anna goes by train 2 hours;
+	Inna goes by subway 1 hours;
+	Oleg goes by plane 0.5 hours;
+	Nik goes by boat 34 hours;
+	Inna goes by foot 10 hours;
+	Kate goes by bike 5 hours;
+	Andrew goes by bus 24 hours;
+	Greg goes by train 2 hours;
+	Bill goes by car 10 hours;
+end
+print_tr;
+print_bm;
+max_distance;
+min_distance;
